@@ -94,9 +94,9 @@ export function GameScreen() {
   }
 
   return (
-    <div className="table-room min-h-dvh">
-    <main className="mx-auto flex min-h-dvh w-full max-w-2xl flex-col px-4 py-5 pb-28">
-      <header className="mb-3 flex items-center justify-between gap-2">
+    <div className="table-room min-h-dvh lg:h-dvh lg:overflow-hidden">
+    <main className="mx-auto flex min-h-dvh w-full max-w-2xl flex-col px-4 py-5 pb-28 lg:h-dvh lg:max-w-6xl lg:min-h-0">
+      <header className="mb-3 flex shrink-0 items-center justify-between gap-2">
         <div>
           <p className="text-sm text-carve/70">
             라운드 {rounds.length + 1}
@@ -139,14 +139,15 @@ export function GameScreen() {
         </div>
       </header>
 
-      <ScoreTrack players={players} onMovingChange={setHopsBusy} />
-
-      <div className="mt-5">
-        <Standings players={players} lastRound={last} onNudge={nudgeScore} />
+      <div className="flex min-h-0 flex-1 flex-col lg:grid lg:grid-cols-[minmax(0,1fr)_24rem] lg:items-start lg:gap-6">
+        <ScoreTrack players={players} onMovingChange={setHopsBusy} />
+        <div className="mt-5 lg:mt-0 lg:max-h-[calc(100dvh-10rem)] lg:overflow-y-auto">
+          <Standings players={players} lastRound={last} onNudge={nudgeScore} />
+        </div>
       </div>
 
       <div className="fixed right-0 bottom-0 left-0 z-30 border-t border-carve/15 bg-table/92 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
-        <div className="mx-auto max-w-2xl">
+        <div className="mx-auto max-w-2xl lg:max-w-6xl">
           <Button
             type="button"
             size="xl"

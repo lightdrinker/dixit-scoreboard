@@ -137,6 +137,19 @@
   box-shadow: var(--shadow-border);
 }
 
+.score-board-shell {
+  position: relative;
+  width: 100%;
+  max-width: 36rem;
+  margin-inline: auto;
+}
+
+@media (min-width: 64rem) {
+  .score-board-shell {
+    max-width: min(100%, calc(100dvh - 10rem));
+  }
+}
+
 .win-burst {
   pointer-events: none;
   position: absolute;

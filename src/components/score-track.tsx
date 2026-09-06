@@ -251,7 +251,7 @@ export function ScoreTrack({ players, onMovingChange }: ScoreTrackProps) {
   }, [stacks]);
 
   return (
-    <div className="relative mx-auto w-full max-w-xl">
+    <div className="score-board-shell">
       <div className="relative aspect-square w-full">
         <svg
           viewBox={`0 0 ${VB_W} ${VB_H}`}
@@ -423,7 +423,7 @@ export function ScoreTrack({ players, onMovingChange }: ScoreTrackProps) {
         })}
       </div>
 
-      <ol className="mt-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 px-2">
+      <ol className="mt-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 px-2 lg:hidden">
         {players.map((p) => {
           const color = rabbitColor(p.colorId);
           return (
