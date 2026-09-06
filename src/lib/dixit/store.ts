@@ -26,7 +26,7 @@ function uid(): string {
 
 function blankPlayers(count: number): Player[] {
   return Array.from({ length: count }, (_, i) => ({
-    id: uid(),
+    id: `seat-${i + 1}`,
     name: "",
     colorId: RABBIT_COLORS[i % RABBIT_COLORS.length]!.id,
     score: 0,
