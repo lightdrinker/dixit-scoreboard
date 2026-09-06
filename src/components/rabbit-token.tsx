@@ -1,3 +1,4 @@
+import { useId } from "react";
 import { cn } from "@/lib/utils";
 import { rabbitColor } from "@/lib/dixit/colors";
 
@@ -16,27 +17,67 @@ const chipSizes = {
 } as const;
 
 const pawnSizes = {
-  sm: "h-8 w-6",
-  md: "h-11 w-8",
-  lg: "h-14 w-10",
+  sm: "h-9 w-8",
+  md: "h-11 w-10",
+  lg: "h-14 w-12",
 } as const;
 
-function PawnSvg({ hex, on }: { hex: string; on: string }) {
+function RabbitFigure({ fill }: { fill: string }) {
   return (
-    <svg viewBox="0 0 64 90" className="h-full w-full overflow-visible" aria-hidden>
-      <ellipse cx="32" cy="84" rx="18" ry="5" fill="rgb(8 4 2 / 0.4)" />
-      <ellipse cx="32" cy="78" rx="15" ry="5" fill={hex} />
-      <ellipse cx="32" cy="78" rx="15" ry="5" fill="rgb(8 4 2 / 0.25)" />
-      <ellipse cx="21" cy="20" rx="7.5" ry="18" fill={hex} />
-      <ellipse cx="43" cy="20" rx="7.5" ry="18" fill={hex} />
-      <ellipse cx="21" cy="21" rx="3.2" ry="10" fill={on} opacity="0.32" />
-      <ellipse cx="43" cy="21" rx="3.2" ry="10" fill={on} opacity="0.32" />
-      <ellipse cx="32" cy="56" rx="19" ry="21" fill={hex} />
-      <circle cx="32" cy="34" r="15" fill={hex} />
-      <ellipse cx="26" cy="30" rx="6" ry="5" fill={on} opacity="0.22" />
-      <ellipse cx="32" cy="52" rx="8" ry="12" fill={on} opacity="0.14" />
-      <circle cx="27" cy="34" r="2.1" fill="rgb(20 12 8 / 0.55)" />
-      <circle cx="38" cy="34" r="2.1" fill="rgb(20 12 8 / 0.55)" />
+    <g fill={fill}>
+      {/* Both ears grow from the head, not the back. */}
+      <path d="M41.2 2.1C35.4 6.2 36.2 24.8 47.6 43.2C51.4 26.5 49.2 5.8 41.2 2.1Z" />
+      <path d="M55.4 1.4C49.6 5.6 50.4 24.5 57.2 43C62.8 26.2 62.4 4.8 55.4 1.4Z" />
+      <ellipse cx="51.2" cy="44.2" rx="13.6" ry="12.4" />
+      <ellipse cx="38.2" cy="66.2" rx="19" ry="14.4" />
+      <circle cx="16.8" cy="64" r="6.5" />
+    </g>
+  );
+}
+
+function RabbitSilhouette({
+  fill,
+  stroke,
+}: {
+  fill: string;
+  stroke: string;
+}) {
+  const uid = useId().replace(/:/g, "");
+  const fid = `rb-ol-${uid}`;
+
+  return (
+    <svg
+      viewBox="0 0 80 88"
+      className="h-full w-full overflow-visible"
+      aria-hidden
+    >
+      <defs>
+        <filter
+          id={fid}
+          x="-18%"
+          y="-12%"
+          width="136%"
+          height="130%"
+          colorInterpolationFilters="sRGB"
+        >
+          <feMorphology
+            in="SourceAlpha"
+            operator="dilate"
+            radius="1.35"
+            result="dilated"
+          />
+          <feFlood floodColor={stroke} result="tint" />
+          <feComposite in="tint" in2="dilated" operator="in" result="outline" />
+          <feMerge>
+            <feMergeNode in="outline" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+      </defs>
+      <ellipse cx="40" cy="84.8" rx="16" ry="2.5" fill="rgb(20 12 8 / 0.28)" />
+      <g filter={`url(#${fid})`}>
+        <RabbitFigure fill={fill} />
+      </g>
     </svg>
   );
 }
@@ -56,7 +97,7 @@ export function RabbitToken({
         className={cn("relative inline-block", pawnSizes[size], className)}
         title={label ?? color.name}
       >
-        <PawnSvg hex={color.hex} on={color.on} />
+        <RabbitSilhouette fill={color.hex} stroke={color.stroke} />
         {label ? <span className="sr-only">{label}</span> : null}
       </span>
     );
@@ -65,18 +106,21 @@ export function RabbitToken({
   return (
     <span
       className={cn(
-        "inline-flex items-center justify-center rounded-full shadow-border",
+        "inline-flex items-center justify-center rounded-full",
         chipSizes[size],
         className,
       )}
-      style={{ backgroundColor: color.hex, color: color.on }}
+      style={{
+        backgroundColor: color.hex,
+        color: color.on,
+        boxShadow: color.light
+          ? `inset 0 0 0 1.5px ${color.stroke}, 0 1px 2px rgb(20 12 8 / 0.22)`
+          : `0 1px 2px rgb(20 12 8 / 0.28)`,
+      }}
       title={label ?? color.name}
     >
-      <svg viewBox="0 0 64 84" className="size-3/5" aria-hidden>
-        <ellipse cx="22" cy="18" rx="7" ry="16" fill="currentColor" />
-        <ellipse cx="42" cy="18" rx="7" ry="16" fill="currentColor" />
-        <ellipse cx="32" cy="54" rx="18" ry="20" fill="currentColor" />
-        <circle cx="32" cy="32" r="14" fill="currentColor" />
+      <svg viewBox="8 0 66 86" className="size-[80%]" aria-hidden>
+        <RabbitFigure fill="currentColor" />
       </svg>
       {label ? <span className="sr-only">{label}</span> : null}
     </span>

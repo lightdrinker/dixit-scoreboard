@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { BookOpen, RotateCcw, Undo2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -26,6 +26,7 @@ import { RulesDialog } from "@/components/rules-dialog";
 import { RabbitToken } from "@/components/rabbit-token";
 import { useGame } from "@/lib/dixit/store";
 import { GOAL_SCORE } from "@/lib/dixit/types";
+import { playVictory } from "@/lib/dixit/sfx";
 
 export function GameScreen() {
   const players = useGame((s) => s.players);
@@ -42,6 +43,9 @@ export function GameScreen() {
   const [wizard, setWizard] = useState(false);
   const [rulesOpen, setRulesOpen] = useState(false);
   const [resetOpen, setResetOpen] = useState(false);
+  const [hopsBusy, setHopsBusy] = useState(false);
+  const [winOpen, setWinOpen] = useState(false);
+  const celebrated = useRef<string>("");
 
   const last = rounds[rounds.length - 1];
   const suggestedStorytellerId = useMemo(() => {
@@ -53,6 +57,24 @@ export function GameScreen() {
 
   const winners = players.filter((p) => winnerIds.includes(p.id));
   const leader = [...players].sort((a, b) => b.score - a.score)[0];
+  const winnerKey = winnerIds.slice().sort().join(",");
+
+  useEffect(() => {
+    if (phase !== "finished" || !winners.length) {
+      setWinOpen(false);
+      if (phase !== "finished") celebrated.current = "";
+      return;
+    }
+    if (hopsBusy) return;
+    const t = window.setTimeout(() => setWinOpen(true), 220);
+    return () => window.clearTimeout(t);
+  }, [phase, winners.length, hopsBusy, winnerKey]);
+
+  useEffect(() => {
+    if (!winOpen || !winnerKey || celebrated.current === winnerKey) return;
+    celebrated.current = winnerKey;
+    playVictory();
+  }, [winOpen, winnerKey]);
 
   if (wizard) {
     return (
@@ -117,7 +139,7 @@ export function GameScreen() {
         </div>
       </header>
 
-      <ScoreTrack players={players} />
+      <ScoreTrack players={players} onMovingChange={setHopsBusy} />
 
       <div className="mt-5">
         <Standings players={players} lastRound={last} onNudge={nudgeScore} />
@@ -172,30 +194,69 @@ export function GameScreen() {
       </AlertDialog>
 
       <Dialog
-        open={phase === "finished" && winners.length > 0}
+        open={winOpen}
         onOpenChange={(open) => {
-          if (!open) setPhase("play");
+          setWinOpen(open);
+          if (!open && phase === "finished") setPhase("play");
         }}
       >
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>도착</DialogTitle>
-            <DialogDescription>
-              {GOAL_SCORE}점에 먼저 오른 사람입니다. 같은 라운드에 여러 명이면
-              더 높은 점수가 이깁니다.
+        <DialogContent className="overflow-hidden sm:max-w-md">
+          <div className="win-burst" aria-hidden>
+            {Array.from({ length: 14 }, (_, i) => (
+              <span
+                key={i}
+                className="win-petal"
+                style={{
+                  left: `${8 + ((i * 7) % 84)}%`,
+                  animationDelay: `${(i % 7) * 0.08}s`,
+                  backgroundColor: [
+                    "#2F7A5A",
+                    "#E4C64A",
+                    "#C42C24",
+                    "#1F52A8",
+                    "#C85D6A",
+                    "#e8b35a",
+                  ][i % 6],
+                }}
+              />
+            ))}
+          </div>
+          <DialogHeader className="relative items-center text-center">
+            <p className="text-sm font-medium tracking-wide text-primary">
+              반환점 도착
+            </p>
+            <DialogTitle className="font-display text-3xl">
+              {winners.length > 1 ? "공동 승리!" : "승리!"}
+            </DialogTitle>
+            <DialogDescription className="text-center">
+              {winners.length > 1
+                ? `${winners.map((w) => w.name).join(", ")}의 토끼가 ${GOAL_SCORE}점에 함께 도착했습니다.`
+                : `${winners[0]?.name ?? "플레이어"}의 토끼가 ${GOAL_SCORE}점에 먼저 도착했습니다.`}
             </DialogDescription>
           </DialogHeader>
-          <ul className="flex flex-col gap-3">
+          <ul className="relative flex flex-col items-center gap-3 py-1">
             {winners.map((p) => (
-              <li key={p.id} className="flex items-center gap-3">
-                <RabbitToken colorId={p.colorId} size="lg" />
-                <span className="font-display text-2xl">{p.name}</span>
-                <span className="ml-auto text-2xl tabular-nums">{p.score}</span>
+              <li key={p.id} className="flex w-full items-center gap-3 rounded-lg bg-secondary/70 px-3 py-2">
+                <RabbitToken colorId={p.colorId} size="lg" variant="pawn" />
+                <div className="min-w-0 flex-1">
+                  <p className="font-display text-2xl leading-tight">{p.name}</p>
+                  <p className="text-sm text-muted-foreground">승자</p>
+                </div>
+                <span className="font-display text-3xl tabular-nums text-primary">
+                  {p.score}
+                </span>
               </li>
             ))}
           </ul>
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => setPhase("play")}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                setWinOpen(false);
+                setPhase("play");
+              }}
+            >
               점수 더 보기
             </Button>
             <Button type="button" onClick={newSetup}>

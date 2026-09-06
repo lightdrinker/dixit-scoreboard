@@ -36,7 +36,7 @@ export function SetupScreen() {
       <section className="paper-panel rounded-xl p-4 sm:p-5">
         <h2 className="font-display text-xl">플레이어</h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          기본 6명입니다. 이름만 적고 시작해도 됩니다.
+          기본 6명은 실제 딕싯 말 색입니다. 이름만 적고 시작해도 됩니다.
         </p>
 
         <div className="mt-4 flex items-center gap-3">
@@ -93,7 +93,7 @@ export function SetupScreen() {
                 }}
                 aria-label={`${p.name || `플레이어 ${i + 1}`} 색 바꾸기`}
               >
-                <RabbitToken colorId={p.colorId} size="lg" />
+                <RabbitToken colorId={p.colorId} size="lg" variant="pawn" />
               </button>
               <Input
                 value={p.name}

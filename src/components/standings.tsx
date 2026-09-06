@@ -11,16 +11,14 @@ type StandingsProps = {
 };
 
 export function Standings({ players, lastRound, onNudge }: StandingsProps) {
-  const ranked = [...players].sort((a, b) => b.score - a.score);
-
   return (
     <section className="paper-panel rounded-xl p-4">
       <div className="mb-3 flex items-baseline justify-between">
-        <h2 className="font-display text-xl">순위</h2>
-        <p className="text-sm text-muted-foreground">보정은 ±1</p>
+        <h2 className="font-display text-xl">플레이어</h2>
+        <p className="text-sm text-muted-foreground">보정은 ±1 · 자리는 그대로</p>
       </div>
       <ol className="flex flex-col gap-2">
-        {ranked.map((p, i) => {
+        {players.map((p, i) => {
           const delta = lastRound?.deltas[p.id] ?? 0;
           return (
             <li
@@ -30,7 +28,7 @@ export function Standings({ players, lastRound, onNudge }: StandingsProps) {
               <span className="w-5 text-center text-sm tabular-nums text-muted-foreground">
                 {i + 1}
               </span>
-              <RabbitToken colorId={p.colorId} size="sm" />
+              <RabbitToken colorId={p.colorId} size="sm" variant="pawn" />
               <span className="min-w-0 flex-1 truncate font-medium">{p.name}</span>
               {delta ? (
                 <span

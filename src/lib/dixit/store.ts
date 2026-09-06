@@ -33,6 +33,19 @@ function blankPlayers(count: number): Player[] {
   }));
 }
 
+function settleWinners(players: Player[]): {
+  winnerIds: string[];
+  phase: Phase;
+} {
+  const reached = players.filter((p) => p.score >= GOAL_SCORE);
+  if (!reached.length) return { winnerIds: [], phase: "play" };
+  const top = Math.max(...reached.map((p) => p.score));
+  return {
+    winnerIds: reached.filter((p) => p.score === top).map((p) => p.id),
+    phase: "finished",
+  };
+}
+
 type GameState = GameSnapshot & {
   setPhase: (phase: Phase) => void;
   setPlayerName: (id: string, name: string) => void;
@@ -139,12 +152,7 @@ export const useGame = create<GameState>()(
           ...p,
           score: p.score + (deltas[p.id] ?? 0),
         }));
-        const top = Math.max(...nextPlayers.map((p) => p.score));
-        const reached = nextPlayers.filter((p) => p.score >= GOAL_SCORE);
-        const winnerIds =
-          reached.length === 0
-            ? []
-            : reached.filter((p) => p.score === top).map((p) => p.id);
+        const settled = settleWinners(nextPlayers);
         const round: RoundRecord = {
           id: uid(),
           storytellerId: input.storytellerId,
@@ -155,8 +163,8 @@ export const useGame = create<GameState>()(
         set({
           players: nextPlayers,
           rounds: [...get().rounds, round],
-          winnerIds,
-          phase: winnerIds.length ? "finished" : "play",
+          winnerIds: settled.winnerIds,
+          phase: settled.phase,
         });
         return null;
       },
@@ -164,21 +172,27 @@ export const useGame = create<GameState>()(
         const { rounds, players } = get();
         const last = rounds[rounds.length - 1];
         if (!last) return;
+        const nextPlayers = players.map((p) => ({
+          ...p,
+          score: Math.max(0, p.score - (last.deltas[p.id] ?? 0)),
+        }));
+        const settled = settleWinners(nextPlayers);
         set({
           rounds: rounds.slice(0, -1),
-          players: players.map((p) => ({
-            ...p,
-            score: Math.max(0, p.score - (last.deltas[p.id] ?? 0)),
-          })),
-          winnerIds: [],
-          phase: "play",
+          players: nextPlayers,
+          winnerIds: settled.winnerIds,
+          phase: settled.phase,
         });
       },
       nudgeScore: (id, delta) => {
+        const players = get().players.map((p) =>
+          p.id === id ? { ...p, score: Math.max(0, p.score + delta) } : p,
+        );
+        const settled = settleWinners(players);
         set({
-          players: get().players.map((p) =>
-            p.id === id ? { ...p, score: Math.max(0, p.score + delta) } : p,
-          ),
+          players,
+          winnerIds: settled.winnerIds,
+          phase: settled.phase,
         });
       },
       resetGame: () => {
@@ -192,7 +206,7 @@ export const useGame = create<GameState>()(
       newSetup: () => set(initial()),
     }),
     {
-      name: "dixit-scoreboard-v3",
+      name: "dixit-scoreboard-v4",
       storage: createJSONStorage(() => localStorage),
       skipHydration: true,
       partialize: (state) => ({
