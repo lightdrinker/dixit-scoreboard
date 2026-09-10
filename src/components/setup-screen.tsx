@@ -26,7 +26,7 @@ export function SetupScreen() {
           테이블용 계산기
         </p>
         <h1 className="font-display mt-1 text-4xl leading-tight text-foreground">
-          딕싷 점수판
+          딕싯 점수판
         </h1>
         <p className="mt-3 max-w-md text-muted-foreground">
           라운드가 끝나면 스토리텔러, 맞힌 사람, 미끼 표만 고르면
@@ -37,7 +37,7 @@ export function SetupScreen() {
       <section className="paper-panel rounded-xl p-4 sm:p-5">
         <h2 className="font-display text-xl">플레이어</h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          기본 6명은 실제 딕싷 말 색입니다. 이름만 적고 시작해도 됩니다.
+          기본 6명은 실제 딕싯 말 색입니다. 이름만 적고 시작해도 됩니다.
         </p>
 
         <div className="mt-4 flex items-center gap-3">

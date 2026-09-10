@@ -213,9 +213,12 @@ export function RoundWizard({
             </Button>
           </div>
           <p className="text-sm text-muted-foreground">
-            {kind === "all" && "스토리텔러 0점, 나머지 각자 +2. 미끼 표는 없습니다."}
-            {kind === "none" && "스토리텔러 0점, 나머지 각자 +2. 표는 전부 미끼로 갑니다."}
-            {kind === "some" && "스토리텔러와 맞힌 사람 +3. 나머지 표는 미끼 보너스."}
+            {kind === "all" &&
+              "너무 쉬움 · 스토리텔러 0, 나머지 각자 +2. 미끼 표는 없습니다."}
+            {kind === "none" &&
+              "너무 어려움 · 스토리텔러 0, 나머지 각자 +2. 표는 전부 미끼로 갑니다."}
+            {kind === "some" &&
+              "일부만 맞춤 · 스토리텔러와 맞힌 사람 +3. 나머지 표는 미끼 +1."}
           </p>
           <ul className="flex flex-col gap-2">
             {others.map((id) => {

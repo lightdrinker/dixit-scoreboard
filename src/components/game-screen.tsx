@@ -103,7 +103,7 @@ export function GameScreen() {
             라운드 {rounds.length + 1}
             {leader ? ` · 선두 ${leader.name}` : ""}
           </p>
-          <h1 className="font-display text-2xl leading-tight text-carve">딕싷 점수판</h1>
+          <h1 className="font-display text-2xl leading-tight text-carve">딕싯 점수판</h1>
         </div>
         <div className="flex gap-1">
           <Button
