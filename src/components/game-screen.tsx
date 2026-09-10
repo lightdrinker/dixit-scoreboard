@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/dialog";
 import { ScoreTrack } from "@/components/score-track";
 import { Standings } from "@/components/standings";
+import { ScoreGuide } from "@/components/score-guide";
 import { RoundWizard } from "@/components/round-wizard";
 import { RulesDialog } from "@/components/rules-dialog";
 import { RabbitToken } from "@/components/rabbit-token";
@@ -102,12 +103,11 @@ export function GameScreen() {
             라운드 {rounds.length + 1}
             {leader ? ` · 선두 ${leader.name}` : ""}
           </p>
-          <h1 className="font-display text-2xl leading-tight text-carve">딕싯 점수판</h1>
+          <h1 className="font-display text-2xl leading-tight text-carve">딕싷 점수판</h1>
         </div>
         <div className="flex gap-1">
           <Button
-            type="button"
-            variant="ghost"
+            type="button"n            variant="ghost"
             size="icon"
             className="text-carve hover:bg-carve/10 hover:text-carve"
             onClick={() => setRulesOpen(true)}
@@ -141,8 +141,9 @@ export function GameScreen() {
 
       <div className="flex min-h-0 flex-1 flex-col lg:grid lg:grid-cols-[minmax(0,1fr)_24rem] lg:items-start lg:gap-6">
         <ScoreTrack players={players} onMovingChange={setHopsBusy} />
-        <div className="mt-5 lg:mt-0 lg:max-h-[calc(100dvh-10rem)] lg:overflow-y-auto">
+        <div className="mt-5 flex flex-col gap-3 lg:mt-0 lg:max-h-[calc(100dvh-10rem)] lg:overflow-y-auto">
           <Standings players={players} lastRound={last} onNudge={nudgeScore} />
+          <ScoreGuide compact />
         </div>
       </div>
 

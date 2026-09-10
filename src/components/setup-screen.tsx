@@ -7,6 +7,7 @@ import { MAX_PLAYERS, MIN_PLAYERS } from "@/lib/dixit/types";
 import { useGame } from "@/lib/dixit/store";
 import { useState } from "react";
 import { RulesDialog } from "@/components/rules-dialog";
+import { ScoreGuide } from "@/components/score-guide";
 
 export function SetupScreen() {
   const players = useGame((s) => s.players);
@@ -25,18 +26,18 @@ export function SetupScreen() {
           테이블용 계산기
         </p>
         <h1 className="font-display mt-1 text-4xl leading-tight text-foreground">
-          딕싯 점수판
+          딕싷 점수판
         </h1>
         <p className="mt-3 max-w-md text-muted-foreground">
-          라운드가 끝나면 스토리텔러, 맞힌 사람, 미끼 표만 고르면 점수가
-          공식 규칙대로 올라갑니다. 토끼는 0에서 30까지 트랙을 따라가요.
+          라운드가 끝나면 스토리텔러, 맞힌 사람, 미끼 표만 고르면
+          토끼가 공식 규칙대로 칸을 움직입니다. 30칸에 먼저 도착하면 승리입니다.
         </p>
       </header>
 
       <section className="paper-panel rounded-xl p-4 sm:p-5">
         <h2 className="font-display text-xl">플레이어</h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          기본 6명은 실제 딕싯 말 색입니다. 이름만 적고 시작해도 됩니다.
+          기본 6명은 실제 딕싷 말 색입니다. 이름만 적고 시작해도 됩니다.
         </p>
 
         <div className="mt-4 flex items-center gap-3">
@@ -111,6 +112,8 @@ export function SetupScreen() {
           토끼를 누르면 색이 바뀝니다.
         </p>
       </section>
+
+      <ScoreGuide className="mt-4" />
 
       {error ? (
         <p className="mt-3 text-sm text-destructive" role="alert">
