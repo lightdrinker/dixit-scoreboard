@@ -7,25 +7,86 @@ type ScoreGuideProps = {
   framed?: boolean;
 };
 
-const CASES = [
+const COLS = ["텔러", "맞힌 사람", "그 외"] as const;
+
+const ROWS = [
   {
-    title: "일부만 맞춤",
-    hint: "한 명이라도, 전원이 아니면",
-    points: [
-      { who: "스토리텔러", pts: "+3" },
-      { who: "맞힌 사람", pts: "+3" },
-      { who: "못 맞힌 사람", pts: "0" },
-    ],
+    when: "일부만 맞춤",
+    pts: ["+3", "+3", "0"] as const,
   },
   {
-    title: "전원 맞춤 · 아무도 못 맞춤",
-    hint: "힌트가 너무 쉽거나 너무 어려움",
-    points: [
-      { who: "스토리텔러", pts: "0" },
-      { who: "나머지", pts: "+2" },
-    ],
+    when: "전원 맞춤",
+    pts: ["0", "+2", "—"] as const,
+  },
+  {
+    when: "아무도 못 맞춤",
+    pts: ["0", "—", "+2"] as const,
   },
 ] as const;
+
+function Pts({ value }: { value: string }) {
+  const mute = value === "0" || value === "—";
+  return (
+    <span
+      className={cn(
+        "font-display tabular-nums",
+        mute ? "text-muted-foreground" : "text-primary",
+      )}
+    >
+      {value}
+    </span>
+  );
+}
+
+function ScoreTable({ compact = false }: { compact?: boolean }) {
+  return (
+    <table className="w-full border-separate border-spacing-0 text-sm">
+      <caption className="sr-only">상황별 스토리텔러·맞힌 사람·그 외 점수</caption>
+      <thead>
+        <tr className="text-xs text-muted-foreground">
+          <th scope="col" className="py-1.5 pr-2 text-left font-medium">
+            상황
+          </th>
+          {COLS.map((col) => (
+            <th
+              key={col}
+              scope="col"
+              className="w-16 py-1.5 text-right font-medium leading-tight"
+            >
+              {col}
+            </th>
+          ))}
+        </tr>
+      </thead>
+      <tbody>
+        {ROWS.map((row) => (
+          <tr key={row.when}>
+            <th
+              scope="row"
+              className={cn(
+                "border-t border-border pr-2 text-left font-medium",
+                compact ? "py-1.5" : "py-2.5",
+              )}
+            >
+              {row.when}
+            </th>
+            {row.pts.map((pt, i) => (
+              <td
+                key={COLS[i]}
+                className={cn(
+                  "border-t border-border text-right",
+                  compact ? "py-1.5 text-lg" : "py-2.5 text-2xl",
+                )}
+              >
+                <Pts value={pt} />
+              </td>
+            ))}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+}
 
 export function ScoreGuide({
   className,
@@ -33,92 +94,43 @@ export function ScoreGuide({
   detailed = false,
   framed = true,
 }: ScoreGuideProps) {
-  if (compact) {
-    return (
-      <section className={cn("paper-panel rounded-xl p-3", className)}>
-        <div className="mb-2 flex items-baseline justify-between gap-3">
-          <h2 className="font-display text-lg">점수 배정</h2>
-          <p className="text-xs text-muted-foreground">30점 도착 승리</p>
-        </div>
-        <ul className="flex flex-col gap-1.5 text-sm">
-          <li className="flex flex-wrap items-baseline justify-between gap-x-3 rounded-md bg-secondary/60 px-3 py-2">
-            <span className="text-muted-foreground">일부만 맞춤</span>
-            <span className="tabular-nums">
-              텔러 <span className="font-display text-primary">+3</span>
-              <span className="mx-1.5 text-border">·</span>
-              맞힌 사람 <span className="font-display text-primary">+3</span>
-            </span>
-          </li>
-          <li className="flex flex-wrap items-baseline justify-between gap-x-3 rounded-md bg-secondary/60 px-3 py-2">
-            <span className="text-muted-foreground">전원 · 없음</span>
-            <span className="tabular-nums">
-              텔러 <span className="font-display text-muted-foreground">0</span>
-              <span className="mx-1.5 text-border">·</span>
-              나머지 <span className="font-display text-primary">+2</span>
-            </span>
-          </li>
-          <li className="flex flex-wrap items-baseline justify-between gap-x-3 rounded-md bg-secondary/60 px-3 py-2">
-            <span className="text-muted-foreground">미끼</span>
-            <span className="tabular-nums">
-              표 1장당 <span className="font-display text-primary">+1</span>
-            </span>
-          </li>
-        </ul>
-      </section>
-    );
-  }
-
   return (
     <section
-      className={cn(framed && "paper-panel rounded-xl p-4 sm:p-5", className)}
+      className={cn(
+        framed && "paper-panel rounded-xl",
+        framed && (compact ? "p-3" : "p-4 sm:p-5"),
+        className,
+      )}
     >
-      <h2 className="font-display text-xl">점수 배정</h2>
-      <p className="mt-1 text-sm text-muted-foreground">
-        스토리텔러 카드를 누가 골랐는지로 먼저 정하고, 미끼 표는 그다음에
-        더합니다. 30점에 먼저 도착하면 이깁니다.
+      <div className="mb-2 flex items-baseline justify-between gap-3">
+        <h2 className={cn("font-display", compact ? "text-lg" : "text-xl")}>
+          점수 배정
+        </h2>
+        <p className="text-xs text-muted-foreground">30점 도착 승리</p>
+      </div>
+
+      {!compact ? (
+        <p className="mb-3 text-sm text-muted-foreground">
+          스토리텔러 카드를 누가 골랐는지로 먼저 정합니다. 열은 역할, 행은
+          상황입니다.
+        </p>
+      ) : null}
+
+      <ScoreTable compact={compact} />
+
+      <p
+        className={cn(
+          "border-t border-border text-muted-foreground",
+          compact ? "mt-2 pt-2 text-xs" : "mt-3 pt-3 text-sm",
+        )}
+      >
+        미끼{" "}
+        <span className="font-display text-primary tabular-nums">+1</span>
+        <span className="text-muted-foreground">
+          {" "}
+          / 내 카드가 받은 표. 텔러는 없고, 전원 맞춤이면 미끼 표도 없습니다.
+        </span>
       </p>
-
-      <ol className="mt-4 flex flex-col gap-2">
-        {CASES.map((c) => (
-          <li key={c.title} className="rounded-lg bg-secondary/70 px-3 py-3">
-            <p className="font-medium">{c.title}</p>
-            <p className="text-xs text-muted-foreground">{c.hint}</p>
-            <div
-              className={cn(
-                "mt-3 grid gap-2",
-                c.points.length === 3 ? "grid-cols-3" : "grid-cols-2",
-              )}
-            >
-              {c.points.map((p) => (
-                <div key={p.who} className="min-w-0">
-                  <p className="truncate text-xs text-muted-foreground">{p.who}</p>
-                  <p
-                    className={cn(
-                      "font-display text-2xl leading-none tabular-nums",
-                      p.pts === "0" ? "text-muted-foreground" : "text-primary",
-                    )}
-                  >
-                    {p.pts}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </li>
-        ))}
-
-        <li className="rounded-lg bg-secondary/70 px-3 py-3">
-          <p className="font-medium">미끼 보너스</p>
-          <p className="text-xs text-muted-foreground">
-            스토리텔러가 아닌 사람만. 전원 맞춤이면 미끼 표가 없습니다.
-          </p>
-          <p className="mt-3 font-display text-2xl leading-none text-primary tabular-nums">
-            +1{" "}
-            <span className="text-sm font-sans font-medium text-muted-foreground">
-              내 카드가 받은 표 1장당
-            </span>
-          </p>
-        </li>
-      </ol>
 
       {detailed ? (
         <ol className="mt-4 flex flex-col gap-3 text-sm leading-relaxed">
