@@ -107,7 +107,8 @@ export function GameScreen() {
         </div>
         <div className="flex gap-1">
           <Button
-            type="button"n            variant="ghost"
+            type="button"
+            variant="ghost"
             size="icon"
             className="text-carve hover:bg-carve/10 hover:text-carve"
             onClick={() => setRulesOpen(true)}
