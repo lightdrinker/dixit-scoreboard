@@ -41,7 +41,7 @@ export function RulesDialog({ open, onOpenChange }: RulesDialogProps) {
           <li>
             <p className="font-medium text-foreground">3. 미끼 보너스</p>
             <p className="text-muted-foreground">
-              스토리텔러가 아닌 사람은 자기 카드가 받은 표 1장마다 1칸 더 움직입니다. 알맞히거나 전원 알맞헤도 극은 같습니다.
+              스토리텔러가 아닌 사람은 자기 카드가 받은 표 1장마다 1칸 더 움직입니다. 알맞히거나 전원 알맞히지 못해도 극은 같습니다.
             </p>
           </li>
           <li>
